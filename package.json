@@ -1,0 +1,62 @@
+{
+  "name": "sahidmiller.com",
+  "version": "0.3.1",
+  "description": "sahidmiller.com terminal webapp",
+  "main": "src/App.js",
+  "keywords": [
+    "terminal",
+    "nodejs",
+    "bash",
+    "shell",
+    "xtermjs",
+    "node-pty",
+    "powershell"
+  ],
+  "author": {
+    "name": "Sahid Miller",
+    "email": "sahid.miller@gmail.com"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-react": "^7.14.5",
+    "@network-stackify/stack": "^1.1.2",
+    "babel-loader": "^8.2.2",
+    "bash-ast-traverser": "^0.5.0",
+    "browser-devtools": "../browser-devtools/",
+    "browser-process-hrtime": "^1.0.0",
+    "cash": "^0.8.0",
+    "escape-string-regexp": "^5.0.0",
+    "executable": "^4.1.1",
+    "isomorphic-git": "^1.10.0",
+    "js-md4": "^0.3.2",
+    "minimal-ipfs": "SahidMiller/minimal-ipfs",
+    "node-stackify": "^0.0.2",
+    "preact": "^10.5.14",
+    "preact-compat": "^3.19.0",
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.1",
+    "remote-web-streams": "^0.1.0",
+    "sed-lite": "^0.8.4",
+    "tessreact": "SahidMiller/tessreact",
+    "tng-hooks": "^4.1.5",
+    "watch": "^1.0.2",
+    "web-worker-proxy": "^0.5.5",
+    "xhr": "^2.6.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "css-loader": "^5.2.7",
+    "extract-loader": "^5.1.0",
+    "file-loader": "^6.2.0",
+    "html-loader": "^2.1.2",
+    "html-webpack-plugin": "^5.3.2",
+    "node-polyfill-webpack-plugin": "^1.1.4",
+    "style-loader": "^3.2.1",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.44.0",
+    "webpack-cli": "^4.7.2"
+  }
+}
