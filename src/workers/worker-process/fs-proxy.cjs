@@ -1,25 +1,9 @@
-import globalFs from "fs"
-import { fsClient } from "../utils/fs-proxy-client.js";
+const {createFsClient} = require("../proxy-fs/client/index.js");
 
-self.addEventListener("message", async function handleNode(event) {
-  
-  self.removeEventListener("message", handleNode);
+module.exports.bootstrap = function (proxyPort) {
+  const fs = createFsClient(proxyPort);
 
-  //TODO God willing: get terminal columns and rows God willing;
-  const { 
-    command, 
-    readablePort, 
-    writablePort, 
-    fsProxyPort, 
-    dimensions, 
-    pid,
-    stdinIsTTY,
-    stdoutIsTTY,
-  } = event.data;
-
-
-  const fs = fsClient(fsProxyPort, self);
-  const fsConcrete = {
+  Object.assign(module.exports, {
     promises: {
       async access(path, mode) {
         return new Promise((res, rej) => {
@@ -299,47 +283,7 @@ self.addEventListener("message", async function handleNode(event) {
     writeFile: fs.writeFile,
     writeFileSync: fs.writeFileSync,
     writeSync: fs.writeSync,
-  };
-  globalThis.fs = fsConcrete
-  globalFs.bootstrap(fsConcrete);
-  globalThis.window = globalThis
+  });
 
-  //Delay streams until fs is setup due to process
-  const { createReaderToClient, createWriterToClient } = await import("../utils/remote-streams-worker.js");
-  // const duplex = createDuplexToClient(readablePort, writablePort);
-  const stdin = createReaderToClient(readablePort);
-  const stdout = createWriterToClient(writablePort);
-  
-  stdin.columns = stdout.columns = dimensions.columns
-  stdin.rows = stdout.rows = dimensions.rows
-  
-  stdin.isTTY = stdinIsTTY;
-  stdout.isTTY = stdoutIsTTY;
-
-  //TODO God willing: setup libp2p for http(s) by fetching libp2p.config and setting up http(s) or net or tls modules, God willing
-  const { bootstrap } = await import("../utils/setupLibp2pRouter.js");
-  await bootstrap;
-  
-  const { bootstrapPath } = await import("../utils/executables.js");
-  await bootstrapPath();
-
-  const tty = await import("../../polyfills/tty.js");
-  tty.ReadStream.messagePort = self;
-  tty.WriteStream.messagePort = self;
-
-  globalThis.tty = tty
-
-  //Delay setting up worker until fs is setup globally
-  const { default:execute } = await import("./index.js")
-
-  // Messes with fs since on same thread. TGIMA.
-  // self.onmessage = function (e) {
-  //   if (e.data && e.data.action === "EXECUTE" && e.data.payload === pid) {
-  //     self.onmessage = null;
-  //     execute(command, duplex);
-  //   }
-  // }
-
-  // self.postMessage({ action: "WORKER_READY", payload: pid });
-  execute(command, stdin, stdout);
-})
+  return module.exports;
+}

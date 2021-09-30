@@ -1,24 +1,13 @@
 import "regenerator-runtime/runtime";
 
-// import Tessreact from "tessreact";
-// import reducer from "tessreact/reducer";
-
-// import { Provider } from "react-redux";
-// import { createStore } from "redux";
-// const store = createStore(reducer);
-
 import { h, render } from "preact";
 import { useState, useMemo, useEffect } from "preact/hooks";
 
 import { MultiTerminal } from "tess";
 
-import useServiceWorkerReadline from "./sw/client/useServiceWorkerReadline.js";
-import useBashWorkerReadline from "./sw/client/useBashWorkerReadline.js";
-import useServiceWorkerCompletions from "./sw/client/useServiceWorkerCompletions.js";
+import useBashWorkerReadline from "./hooks/useBashWorkerReadline.js";
 
 function App(props) {
-  //const [isReady, pipe] = useServiceWorkerReadline();
-  //const [isReady, pipe] = useServiceWorkerCompletions();
   const [isReady, pipe] = useBashWorkerReadline();
 
   const terminals = useMemo(() => {

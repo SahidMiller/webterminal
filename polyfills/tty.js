@@ -1,4 +1,4 @@
-const { createWriterToWorker, createReaderToWorker } = require("../src/utils/remote-streams-client");
+const { createWriterToWorker, createReaderToWorker } = require("remote-worker-streams/client");
 
 //TODO God willing: write a custom Read/WriteStream class (inheriting regular straem I assume, God willing)
 //  From there, basically open it 

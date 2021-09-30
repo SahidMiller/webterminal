@@ -1,45 +1,10 @@
-import { create, intercept } from "web-worker-proxy"
-import xhr from "xhr"
+import { create } from "web-worker-proxy"
 
-export const FS_REQUEST_SUCCEEDED = "FS_REQUEST_SUCCEEDED"
-export const FS_REQUEST_FAILED = "FS_REQUEST_FAILED"
+import syncFsRequest from "./sync.js";
+import { createWriterToWorker, createReaderToWorker } from "remote-worker-streams/client";
+import { CREATE_READ_STREAM, CREATE_WRITE_STREAM } from "../actions.js";
 
-function syncFsRequest(data) {
-  let error, response;
-
-  xhr({
-    method: "post",
-    body: JSON.stringify(data),
-    uri: "/fs",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    sync: true
-  }, (err, resp, body) => {
-    
-    try {
-      const { action, payload } = JSON.parse(body);
-      if (action === FS_REQUEST_SUCCEEDED) {
-        response = payload;
-        return response
-      } else if (action === FS_REQUEST_FAILED) {
-        error = payload;
-        return error
-      }
-    } catch (err) {
-      error = "fs-proxy-client failed to get a valid response"
-    }
-  })
-
-  if(error) {
-    throw error
-  }
-  
-  return response
-}
-
-import { createWriterToWorker, createReaderToWorker } from "./remote-streams-client";
-export function fsClient(messagePort, ipcPort) {
+export function createFsClient(messagePort) {
 
   return create(messagePort, {
     send(actions, intercept) {
@@ -67,8 +32,8 @@ export function fsClient(messagePort, ipcPort) {
         if (last.key === "createWriteStream") {
           const [writableToClient, readablePort] = createWriterToWorker();
 
-          ipcPort.postMessage({
-            action: "CREATE_WRITE_STREAM",
+          messagePort.postMessage({
+            action: CREATE_WRITE_STREAM,
             payload: {
               readablePort,
               path: last.args[0]
@@ -90,8 +55,8 @@ export function fsClient(messagePort, ipcPort) {
         if (last.key === "createReadStream") {
           const [readableToClient, writablePort] = createReaderToWorker();
 
-          ipcPort.postMessage({
-            action: "CREATE_READ_STREAM",
+          messagePort.postMessage({
+            action: CREATE_READ_STREAM,
             payload: {
               writablePort,
               path: last.args[0]

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-
-export const SW_ACTIVATED = "SERVICE_WORKER_ACTIVATED"
+import { SW_ACTIVATED } from "../workers/service-worker/actions.js";
 
 export default function () {
   const [registrationSucceeded, setRegistrationSucceeded] = useState(false);
@@ -12,7 +11,7 @@ export default function () {
     if ("serviceWorker" in navigator) {
       try {
         //const url = new URL("../service-worker.js", import.meta.url);
-        const url = "/service-worker.js";
+        const url = "./service-worker.js";
 
         navigator.serviceWorker.addEventListener(
           "message",

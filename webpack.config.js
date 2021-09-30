@@ -118,10 +118,11 @@ const mainApp = {
 };
 
 const serviceWorker = {
-  entry: "./src/sw/remote/index.js",
+  entry: "./src/workers/service-worker/index.js",
   output: {
-    path: path.resolve("./dist"),
+    path: path.resolve("./dist/"),
     filename: "service-worker.js",
+    chunkFilename: 'service-worker/[name].js'
   },
   mode: "development",
   target: "webworker",
@@ -169,10 +170,11 @@ const serviceWorker = {
 };
 
 const nodeWorker = {
-  entry: "./src/worker/bootstrap-proxy-fs.js",
+  entry: "./src/workers/worker-process/index.js",
   output: {
     path: path.resolve("./dist"),
-    filename: "node-worker.js",
+    filename: "worker.js",
+    chunkFilename: 'worker/[name].js'
   },
   mode: "development",
   target: "webworker",
@@ -186,7 +188,6 @@ const nodeWorker = {
       grim: require.resolve("vimjs/polyfills/grim.js"),
       pkginfo: require.resolve("vimjs/polyfills/pkginfo.js"),
 
-      child_process: require.resolve("./polyfills/child_process.js"),
       tty: require.resolve("./polyfills/tty.js"),
       process: require.resolve("./polyfills/process.js"),
 
@@ -200,7 +201,7 @@ const nodeWorker = {
       "preact/compat": require.resolve("tng-hooks"),
       "preact/hooks": require.resolve("tng-hooks"),
 
-      fs: require.resolve("./polyfills/fs-manual-bootstrap"),
+      fs: require.resolve("./src/workers/worker-process/fs-proxy.cjs"),
       zlib: require.resolve("./polyfills/zlib.js"),
       crypto: require.resolve("./polyfills/crypto.js")
     },

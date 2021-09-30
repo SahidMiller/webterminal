@@ -20,6 +20,8 @@ async function lazyPeer() {
 export const bootstrap = lazyPeer();
 
 //TODO God willing: routing per application as well, God willing?
+//TODO God willing: definitely since might not even be a libp2p connection in the long run, The God is most aware.
+// for example, routing to a stream for a particular app and perhaps particular site in an app or just a particular domain, God willing.
 const routing = {
   "table": {  
     "registry.npmjs.org": {
