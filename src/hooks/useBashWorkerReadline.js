@@ -13,9 +13,10 @@ export default function() {
   const [serviceWorker] = useServiceWorker();
 
   const [termStdio, setStdio] = useState(null);
+  const [childProcess, setChildProcess] = useState(false);
 
   useEffect(() => {
-    if (!termStdio || !serviceWorker) return;
+    if (childProcess || !termStdio || !serviceWorker) return;
 
     const { port1: fsProxyPort, port2: transferFsProxyPort } = new MessageChannel();
     serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: fsProxyPort }, [fsProxyPort]);
@@ -48,6 +49,12 @@ export default function() {
       }
     });
 
+    childProcess.stdout.on('end', () => {   
+      termStdio.removeListener("data", writeDestination)
+      childProcess.stdout.removeListener("data", writeSource) 
+      setChildProcess(null)
+    });
+
     const writeSource = function(data) {
       termStdio.write(data)
     }
@@ -59,14 +66,13 @@ export default function() {
     termStdio.on("data", writeDestination);
     childProcess.stdout.on("data", writeSource);
     
+    setChildProcess(childProcess);
+
     return () => {
-
-      termStdio.removeListener("data", writeDestination)
-      childProcess.stdout.removeListener("data", writeSource)
       childProcess.stdout.destroy();
-    };
-
-  }, [termStdio, serviceWorker])
-
+    }
+    
+  }, [termStdio, serviceWorker]);
+  
   return [isReady, setStdio];
 }
