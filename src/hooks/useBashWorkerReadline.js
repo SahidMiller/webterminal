@@ -22,7 +22,7 @@ export default function() {
     serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: fsProxyPort }, [fsProxyPort]);
     
     //Perhaps fake process before hand with columns and rows, God willing, if it uses globals.
-    const childProcess = spawn("bash", {
+    const childProcess = spawn("bash", ["-worker", "./worker.js"], {
       workerUrl: "./worker.js",
       shell: "/bin/sh",
       fsProxyPort: transferFsProxyPort,
