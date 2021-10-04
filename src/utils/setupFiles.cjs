@@ -6,9 +6,14 @@ async function fetchAndSave(url, path, mode) {
   await fetch(url).then(saveTo(path, mode));
 }
 
-function saveTo(path, mode) {
+function saveTo(pathToSave, mode) {
   return async (source) => {
-    fs.writeFileSync(path, await source.text(), { mode })
+    const dir = path.dirname(pathToSave);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(pathToSave, await source.text(), { mode });
   }
 }
 
@@ -78,12 +83,12 @@ const files = {
   },
 
   //Yarn
-  "package.json": {
-    path: "/package.json",
-    value: JSON.stringify({
-      name: "sahidmiller.com",
-    }, null, 2)
-  },
+  // "package.json": {
+  //   path: "/package.json",
+  //   value: JSON.stringify({
+  //     name: "sahidmiller.com",
+  //   }, null, 2)
+  // },
 
   //Bash
   ".cashrc": {
@@ -96,6 +101,12 @@ const files = {
     url: require("!file-loader?esModule=false&outputPath=service-worker!../../example.libp2p.config.js"),
     path: "/etc/libp2p-hosts.conf.js",
     mode: undefined
+  },
+  "minimal-ipfs": {
+    context: devtoolsContext,
+    modulePath: "./minimal-ipfs.js",
+    path: "/etc/node_modules/minimal-ipfs.js",
+    mode: 755
   },
 
   // ipfs: {
@@ -116,7 +127,7 @@ const directories = [
 ]
 
 module.exports.bootstrap = async function bootstrap() {
-  directories.forEach((directory) => typeof directory === 'string' && fs.mkdirSync(directory));
+  directories.forEach((directory) => typeof directory === 'string' && fs.mkdirSync(directory, { recursive: true }));
 
   await Promise.all(Object.values(files).map(async (file) => {
     const { context, modulePath, path, mode, url, value }= file;

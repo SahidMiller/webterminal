@@ -16,7 +16,6 @@ const mainApp = {
       {
         test: /\.m?js(x?)$/,
         include: path.resolve(__dirname, "src"),
-        exclude: /node_modules[\/\\](?!tessreact)[\/\\].+/,
         use: {
           loader: "babel-loader",
           options: {
@@ -58,28 +57,8 @@ const mainApp = {
     ],
   },
   resolve: {
-    extensions: [".mjs", ".js", ".jsx", ".ts", ".tsx", ".json", ".cjs"],
-    modules: ["node_modules"],
-    fallback: {
-      "term.js": false,
-      "pty.js": false,
-    },
     alias: {
-      superstring: require.resolve("vimjs/polyfills/superstring"),
-      grim: require.resolve("vimjs/polyfills/grim.js"),
-      pkginfo: require.resolve("vimjs/polyfills/pkginfo.js"),
-
-      tty: require.resolve("./polyfills/tty.js"),
-      process: require.resolve("./polyfills/process.js"),
-
-      pathwatcher: false,
-      "fs-admin": "fs",
-      winattr: false,
-      promzard: false,
-      "graceful-fs": "fs",
-      "node-clap": false,
-      fs: false,
-
+      fs:false,
       //React
       //Proper alias if using npm/yarn link
       react: require.resolve("preact/compat"),
@@ -92,28 +71,14 @@ const mainApp = {
   },
   plugins: [
     new NodePolyfillPlugin({
-      excludeAliases: ["process", "tty", "fs"],
-    }),
-    new webpack.ProvidePlugin({
-      process: require.resolve("./polyfills/process.js"),
-      Buffer: ["buffer", "Buffer"],
-      global: require.resolve("./polyfills/global.js"),
+      excludeAliases: ["fs"]
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "./index.html"),
       filename: "index.html",
       inject: "body",
       publicPath: "./",
-    }),
-    new webpack.NormalModuleReplacementPlugin(
-      /\.\/platform\/openbsd/,
-      (resource) => {
-        resource.request = "./platform/linux";
-      }
-    ),
-    // new webpack.NormalModuleReplacementPlugin(/marker-index/, (resource) => {
-    //   resource.request = "marker-index/src/js/marker-index.js"
-    // })
+    })
   ],
 };
 
@@ -126,46 +91,8 @@ const serviceWorker = {
   },
   mode: "development",
   target: "webworker",
-  resolve: {
-    fallback: {
-      "term.js": false,
-      "pty.js": false,
-    },
-    alias: {
-      superstring: require.resolve("vimjs/polyfills/superstring"),
-      grim: require.resolve("vimjs/polyfills/grim.js"),
-      pkginfo: require.resolve("vimjs/polyfills/pkginfo.js"),
-
-      child_process: require.resolve("./polyfills/child_process.js"),
-      tty: require.resolve("./polyfills/tty.js"),
-      process: require.resolve("./polyfills/process.js"),
-
-      pathwatcher: false,
-      "fs-admin": "fs",
-      winattr: false,
-      promzard: false,
-      "graceful-fs": "fs",
-      "node-clap": false,
-
-      "preact/compat": require.resolve("tng-hooks"),
-      "preact/hooks": require.resolve("tng-hooks"),
-    },
-  },
   plugins: [
-    new NodePolyfillPlugin({
-      excludeAliases: ["process", "tty"],
-    }),
-    new webpack.ProvidePlugin({
-      process: require.resolve("./polyfills/process.js"),
-      Buffer: ["buffer", "Buffer"],
-      global: require.resolve("./polyfills/global.js"),
-    }),
-    new webpack.NormalModuleReplacementPlugin(
-      /\.\/platform\/openbsd/,
-      (resource) => {
-        resource.request = "./platform/linux";
-      }
-    ),
+    new NodePolyfillPlugin()
   ],
 };
 
@@ -179,48 +106,15 @@ const nodeWorker = {
   mode: "development",
   target: "webworker",
   resolve: {
-    fallback: {
-      "term.js": false,
-      "pty.js": false,
-    },
     alias: {
-      superstring: require.resolve("vimjs/polyfills/superstring"),
-      grim: require.resolve("vimjs/polyfills/grim.js"),
-      pkginfo: require.resolve("vimjs/polyfills/pkginfo.js"),
-
       tty: require.resolve("./polyfills/tty.js"),
-      process: require.resolve("./polyfills/process.js"),
-
-      pathwatcher: false,
-      "fs-admin": "fs",
-      winattr: false,
-      promzard: false,
-      "graceful-fs": "fs",
-      "node-clap": false,
-
-      "preact/compat": require.resolve("tng-hooks"),
-      "preact/hooks": require.resolve("tng-hooks"),
-
       fs: require.resolve("./src/workers/worker-process/fs-proxy.cjs"),
-      zlib: require.resolve("./polyfills/zlib.js"),
-      crypto: require.resolve("./polyfills/crypto.js")
     },
   },
   plugins: [
     new NodePolyfillPlugin({
-      excludeAliases: ["process", "tty", "fs", "crypto", "zlib"],
-    }),
-    new webpack.ProvidePlugin({
-      process: require.resolve("./polyfills/process.js"),
-      Buffer: ["buffer", "Buffer"],
-      global: require.resolve("./polyfills/global.js"),
-    }),
-    new webpack.NormalModuleReplacementPlugin(
-      /\.\/platform\/openbsd/,
-      (resource) => {
-        resource.request = "./platform/linux";
-      }
-    ),
+      excludeAliases: ["tty", "fs"]
+    })
   ],
 };
 
