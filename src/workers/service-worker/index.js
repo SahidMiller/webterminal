@@ -27,6 +27,12 @@ self.addEventListener("activate", function (e) {
 self.addEventListener("message", async function handler(event) {
   const { action, payload } = event.data || {}
 
+  if (action === "PING") {
+    notifyAll(() => ({
+      action: "PONG"
+    }))
+  }
+  
   if (action === "CREATE_FS_PROXY") {
     const fsProxyPort = payload;
     createFsProxy(fsProxyPort);

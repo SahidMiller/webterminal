@@ -1,10 +1,9 @@
 import { useEffect, useState } from "preact/hooks";
 import { SW_ACTIVATED } from "../workers/service-worker/actions.js";
 
-export default function () {
+export default function (options = {}) {
   const [registrationSucceeded, setRegistrationSucceeded] = useState(false);
   const [registrationFailed, setRegistrationFailed] = useState(false);
-  //Synonymous with activation
   const [serviceWorker, setServiceWorker] = useState(null);
 
   useEffect(async () => {
@@ -40,5 +39,5 @@ export default function () {
     }
   }, []);
 
-  return [serviceWorker, registrationSucceeded, registrationFailed];
+  return [serviceWorker, registrationSucceeded, registrationFailed]
 }
