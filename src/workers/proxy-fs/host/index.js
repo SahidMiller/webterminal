@@ -1,6 +1,6 @@
 import fs from "fs"
 import { createWriterToClient, createReaderToClient } from "remote-worker-streams/worker";
-import { proxy } from "web-worker-proxy";
+import { proxy } from "@sahidmiller/web-worker-proxy";
 import { CREATE_READ_STREAM, CREATE_WRITE_STREAM } from "../actions.js";
 
 //Setup sync proxy

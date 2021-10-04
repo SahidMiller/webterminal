@@ -1,4 +1,4 @@
-import { create } from "web-worker-proxy"
+import { create } from "@sahidmiller/web-worker-proxy"
 
 import syncFsRequest from "./sync.js";
 import { createWriterToWorker, createReaderToWorker } from "remote-worker-streams/client";
