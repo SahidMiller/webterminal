@@ -13,11 +13,11 @@ export function createFsClient(messagePort) {
       const last = actions[actions.length - 1] || {};
       const regex = /(Sync$)|(getCwd|chdir|constants)/
       
-      if (actions.find((method) => regex.test(method.key))) {
+      if (actions.find((method) => typeof method.key === 'string' && regex.test(method.key))) {
         
         const response = syncFsRequest(actions)
 
-        if (response && /^.?statSync$/.test(last.key)) {
+        if (response && typeof last.key === 'string' && /^.?statSync$/.test(last.key)) {
           response.atime = response.atime && new Date(response.atime);
           response.birthtime = response.birthtime && new Date(response.birthtime);
           response.ctime = response.ctime && new Date(response.ctime);
@@ -89,7 +89,7 @@ export function createFsClient(messagePort) {
         return null;
       }
 
-      if (/^.?stat$/.test(last.key)) {
+      if (typeof last.key === 'string' && /^.?stat$/.test(last.key)) {
         const [path, cb] = last.args;
 
         let err, response;

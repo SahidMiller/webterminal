@@ -63,13 +63,12 @@ export default function() {
   useEffect(() => {
     if (!termStdio || !serviceWorker || !!bashProcess || !isServiceWorkerReady) return;
 
-    const { port1: fsProxyPort, port2: transferFsProxyPort } = new MessageChannel();
-    serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: fsProxyPort }, [fsProxyPort]);
+    // const { port1: fsProxyPort, port2: transferFsProxyPort } = new MessageChannel();
+    // serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: fsProxyPort }, [fsProxyPort]);
     
     //Perhaps fake process before hand with columns and rows, God willing, if it uses globals.
     const childProcess = spawn("bash", ["-worker", "./worker.js"], {
       workerUrl: "./worker.js",
-      fsProxyPort: transferFsProxyPort,
       dimensions: { columns: termStdio.columns, rows: termStdio.rows },
       onMessage: (e = {}) => {
 

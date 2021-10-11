@@ -283,6 +283,7 @@ module.exports.bootstrap = function (proxyPort) {
     writeFile: fs.writeFile,
     writeFileSync: fs.writeFileSync,
     writeSync: fs.writeSync,
+    getCwd: fs.getCwd
   });
 
   return module.exports;
