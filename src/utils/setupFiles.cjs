@@ -17,77 +17,98 @@ function saveTo(pathToSave, mode) {
   }
 }
 
-const devtoolsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!browser-devtools', false, /\.*\.js$/);
+// function sucklessRequire(context) {
+//   const filenames = context.keys();
+//   return Promise.all(filenames.map(filename => {
+//     const url = context(filename);
+//     const destination = filename.startsWith("./") ? 
+//       path.join(filepath, filename) : 
+//       path.join(filepath, "node_modules", filename);
+
+//     return fetchAndSave(url, destination, 755);
+//   }))
+// }
+
+// sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/vim/dist', false, /\.*\.(js|ini)$/));
+// sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/bash/dist', true, /\.*\.js$/));
+// sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/ssh/dist', true, /\.*\.js$/));
+// sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/webpack/dist', true, /\.*\.js$/));
+// sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/yarn/dist', true, /\.*\.js$/));
+// sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/minimal-ipfs/dist', true, /\.*\.js$/));
+
+const bashContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/bash/dist', true, /\.*\.js$/);
+// const vimContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/vim/dist', false, /\.*\.(js|ini)$/);
+// const sshContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/ssh/dist', true, /\.*\.js$/);
+// const webpackContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/webpack/dist', true, /\.*\.js$/);
+// const yarnContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/yarn/dist', true, /\.*\.js$/);
+const minimalIpfsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/minimal-ipfs/dist', true, /\.*\.js$/);
+const ipfsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/ipfs/dist', true, /\.*\.js$/);
+
+// const devtoolsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!browser-devtools', false, /\.*\.js$/);
 
 //Most of these probably should be downloaded and/or built themselves, God willing.
 //Perhaps providing webpack configs for us to easily build, God willing.
 const files = {
-  ssh: {
-    context: devtoolsContext,
-    modulePath: "./ssh.js",
-    path: "/bin/ssh",
-    mode: 755
-  },
-  webpack: {
-    context: devtoolsContext,
-    modulePath: "./webpack.js",
-    path: "/usr/bin/webpack",
-    mode: 755
-  },
-  yarn: {
-    context: devtoolsContext,
-    modulePath: "./yarn.js",
-    path: "/usr/bin/yarn",
-    mode: 755
-  },
-  "bash-utils": {
-    context: devtoolsContext,
-    modulePath: "./bash-utils.js",
-    path: "/bin/bash-utils.js",
-    mode: 755
-  },
-  "bash-interpreter": {
-    context: devtoolsContext,
-    modulePath: "./bash-interpreter.js",
-    path: "/bin/bash-interpreter",
-    mode: 755
-  },
-  "bash": {
-    context: devtoolsContext,
-    modulePath: "./bash.js",
+  bash: {
+    sucklessContext: bashContext,
     path: "/bin/bash",
     mode: 755
   },
-  "vimjs": {
-    context: devtoolsContext,
-    modulePath: "./vim.js",
-    path: "/bin/vim",
+  // yarn: {
+  //   sucklessContext: yarnContext,
+  //   path: "/usr/bin/yarn",
+  //   mode: 755
+  // },
+  // webpack: {
+  //   sucklessContext: webpackContext,
+  //   path: "/usr/bin/webpack",
+  //   mode: 755
+  // },
+  // vimjs: {
+  //   sucklessContext: vimContext,
+  //   path: "/bin/vim",
+  //   mode: 755
+  // },
+  // ssh: {
+  //   sucklessContext: sshContext,
+  //   path: "/bin/ssh",
+  //   mode: 755
+  // },
+  "minimal-ipfs": {
+    sucklessContext: minimalIpfsContext,
+    path: "/etc/node_modules/minimal-ipfs",
+    mode: 755
+  },
+  ipfs: {
+    sucklessContext: ipfsContext,
+    path: "/bin/ipfs",
     mode: 755
   },
 
   //Vimjs
-  "editor-widget-config": {
-    url: require("!file-loader?esModule=false&outputPath=service-worker!vimjs/editor-widget.ini"),
-    path: "/default-config.ini",
-    mode: 755
-  },
-  "slap-widget-config": {
-    url: require("!file-loader?esModule=false&outputPath=service-worker!vimjs/slap.ini"),
-    path: "/slap.ini",
-    mode: 755
-  },
-  "base-widget-config": {
-    url: require("!file-loader?esModule=false&outputPath=service-worker!vimjs/base-widget.ini"),
-    path: "/base-widget.ini",
-    mode: 755
-  },
-
-  //Yarn
-  // "package.json": {
-  //   path: "/package.json",
-  //   value: JSON.stringify({
-  //     name: "sahidmiller.com",
-  //   }, null, 2)
+  // "vimjs": {
+  //   context: vimContext,
+  //   modulePath: "./index.js",
+  //   path: "/bin/vim/index.js",
+  //   mode: 755
+  // },
+  // "editor-widget-config": {
+  //   context: vimContext,
+  //   modulePath: "./default-config.ini",
+  //   path: "/default-config.ini",
+  //   mode: 755
+  // },
+  // "slap-widget-config": {
+  //   context: vimContext,
+  //   modulePath: "./slap.ini",
+  //   path: "/slap.ini",
+  //   mode: 755
+  // },
+  // "base-widget-config": {
+  //   context: vimContext,
+  //   modulePath: "./base-widget.ini",
+  //   path: "/base-widget.ini",
+  //   mode: 755
   // },
 
   //Bash
@@ -102,19 +123,12 @@ const files = {
     path: "/etc/libp2p-hosts.conf.js",
     mode: undefined
   },
-  "minimal-ipfs": {
-    context: devtoolsContext,
-    modulePath: "./minimal-ipfs.js",
-    path: "/etc/node_modules/minimal-ipfs.js",
-    mode: 755
-  },
 
   // ipfs: {
   //   path: "/usr/bin/ipfs",
   //   url: require("!file-loader?esModule=false!browser-devtools/ipfs-cli"),
   //   mode: 755
   // },
-  
 }
 
 const directories = [
@@ -130,18 +144,31 @@ module.exports.bootstrap = async function bootstrap() {
   directories.forEach((directory) => typeof directory === 'string' && fs.mkdirSync(directory, { recursive: true }));
 
   await Promise.all(Object.values(files).map(async (file) => {
-    const { context, modulePath, path, mode, url, value }= file;
+    const { sucklessContext, context, modulePath, path: filepath, mode, url, value }= file;
     if (url) {
-      return fetchAndSave(url, path, mode);
+      return fetchAndSave(url, filepath, mode);
     }
     
     if (value) {
-      return fs.writeFileSync(path, value, mode);
+      return fs.writeFileSync(filepath, value, mode);
     }
     
     if (context && modulePath) {
-      const url = devtoolsContext(modulePath);
-      return fetchAndSave(url, path, mode);
+      
+      const url = context(modulePath);
+      return fetchAndSave(url, filepath, mode);
+    }
+
+    if (sucklessContext) {
+      const filenames = sucklessContext.keys();
+      return Promise.all(filenames.map(filename => {
+        const url = sucklessContext(filename);
+        const destination = filename.startsWith("./") ? 
+          path.join(filepath, filename) : 
+          path.join(filepath, "node_modules", filename);
+
+        return fetchAndSave(url, destination, mode);
+      }))
     }
   }));
 

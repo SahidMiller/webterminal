@@ -28,6 +28,9 @@ bootstrapProcess({
 
     //TODO God willing: might ignore bin/bash for this or run this only in specific whitelist, God willing.
     try {
+      const remoteWorkerStreams = require("remote-worker-streams/worker");
+      Module._builtinModules["remote-worker-streams/worker"] = remoteWorkerStreams;
+      
       const { bootstrap } = Module._load("/etc/libp2p-hosts.conf.js")
       await bootstrap;
 

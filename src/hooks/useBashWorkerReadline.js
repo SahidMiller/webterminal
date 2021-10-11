@@ -88,6 +88,8 @@ export default function() {
 
         } else if (action === "CREATE_FS_PROXY") {
           serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: payload }, [payload]);
+        } else if (action === "CREATE_SERVER") {
+          serviceWorker.postMessage(e.data, e.data.transferables);
         }
       }
     });

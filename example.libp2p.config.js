@@ -29,7 +29,9 @@
 // };
 
 const { createPeer } = require("minimal-ipfs");
-const { _normalizeArgs, Socket } = require("net")
+const { _normalizeArgs, Socket, normalizeServerArgs } = require("net")
+const { Server: HttpServer } = require("http");
+const { Server: HttpsServer } = require("https");
 
 let ipfs;
 async function lazyPeer() {
@@ -80,6 +82,7 @@ const routing = {
   "default": undefined
 }
 
+
 //Override all net connections to subvert http(s) and custom connections (non-prototype connect won't work since es6 based and this runs way after binding to es6 connect)
 const originalCreateConnection = Socket.prototype.connect;
 Socket.prototype.connect = function (...args) {
@@ -122,3 +125,70 @@ Socket.prototype.connect = function (...args) {
   // So implementing something in http specific to working with net would be interesting, God willing.
   throw new Error("No libp2p entry exists");
 };
+
+const { createDuplexToClient } = require("remote-worker-streams/worker");
+
+//TODO God willing: possibly try to hook the server so somehow, God willing, we can connect to it from the outside, God willing.
+//since this is tcp like, God willing, and listening over libp2p
+//God willing, another app can connect to this libp2p instance, God willing.
+//Right now we can invert it probably, God willing, so that another app can connect.
+function listen(type = "http", ...args) {
+  
+  const [options, callback] = normalizeServerArgs(args);
+
+  //TODO God willing: setup proper protocols
+  if (Number(options.port) === 8001) {
+    options.protocol = "/api";
+  }
+
+  if (Number(options.port) === 8002) {
+    options.protocol = "/gateway";
+  }
+
+  //TODO God willing: allow service worker to connect by sending a dedicated signal / port, God willing.
+  // as opposed to listening to all
+  const { port1: serverListenPort, port2: serverTransferPort } = new MessageChannel();
+
+  self.postMessage({ 
+    action: "CREATE_SERVER", 
+    payload: {
+      port: options.port,
+      protocolName: options.protocol,
+      protocol: type,
+      //TODO God willing: ignore for now but can do similar things as IPNS with domain names, God willing.
+      // others might collaborate by also hosting same IPNS like structure on their domains
+      host: options.host,
+      messagePort: serverTransferPort
+   }, 
+   transferables: [serverTransferPort]
+  }, [serverTransferPort]);
+
+  
+  serverListenPort.onmessage = (e) => {
+    //TODO God willing: create stream for the new connection using payload
+    const { action, payload } = e.data || {};
+
+    if (action === "NEW_CONNECTION") {
+      const socket = createDuplexToClient(payload.readablePort, payload.writablePort);
+
+      this._connections++;
+      socket.server = this;
+      socket._server = this;
+
+      this.emit("connection", socket);
+    }
+  }
+
+  options.libp2p = ipfs.libp2p;
+  return [options, callback]
+}
+
+const originalHttpsListen = HttpsServer.prototype.listen;
+HttpsServer.prototype.listen = function(...args) {
+  return originalHttpsListen.apply(this, listen.call("https", ...args));
+}
+
+const originalHttpListen = HttpServer.prototype.listen;
+HttpServer.prototype.listen = function(...args) {
+  return originalHttpListen.apply(this, listen.call(this, "http", ...args))
+}
