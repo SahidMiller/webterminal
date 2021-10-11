@@ -37,14 +37,12 @@ function saveTo(pathToSave, mode) {
 // sucklessRequire(require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/minimal-ipfs/dist', true, /\.*\.js$/));
 
 const bashContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/bash/dist', true, /\.*\.js$/);
+const minimalIpfsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/minimal-ipfs/dist', true, /\.*\.js$/);
+const ipfsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/ipfs/dist', true, /\.*\.js$/);
 // const vimContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/vim/dist', false, /\.*\.(js|ini)$/);
 // const sshContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/ssh/dist', true, /\.*\.js$/);
 // const webpackContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/webpack/dist', true, /\.*\.js$/);
 // const yarnContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/yarn/dist', true, /\.*\.js$/);
-const minimalIpfsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/minimal-ipfs/dist', true, /\.*\.js$/);
-const ipfsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!@webterm-tools/ipfs/dist', true, /\.*\.js$/);
-
-// const devtoolsContext = require.context('!file-loader?esModule=false&outputPath=service-worker!browser-devtools', false, /\.*\.js$/);
 
 //Most of these probably should be downloaded and/or built themselves, God willing.
 //Perhaps providing webpack configs for us to easily build, God willing.
@@ -123,12 +121,6 @@ const files = {
     path: "/etc/libp2p-hosts.conf.js",
     mode: undefined
   },
-
-  // ipfs: {
-  //   path: "/usr/bin/ipfs",
-  //   url: require("!file-loader?esModule=false!browser-devtools/ipfs-cli"),
-  //   mode: 755
-  // },
 }
 
 const directories = [
