@@ -1241,15 +1241,15 @@
 
 "@webterm-tools/bash@https://github.com/webterm-tools/bash":
   version "0.0.1"
-  resolved "https://github.com/webterm-tools/bash#82b79b3ac716e9c8fa22562b0bb8abe0d024d175"
+  resolved "https://github.com/webterm-tools/bash#1ccdae5f9fc98402f9e9a906253875f8b1c0703d"
 
 "@webterm-tools/ipfs@https://github.com/webterm-tools/ipfs":
   version "0.0.1"
-  resolved "https://github.com/webterm-tools/ipfs#9494be0f70ae3eb60f31b31f208dd0fb860eea0b"
+  resolved "https://github.com/webterm-tools/ipfs#521daa359a942640c2b2b04f3705d685ae922c96"
 
 "@webterm-tools/minimal-ipfs@https://github.com/webterm-tools/minimal-ipfs":
   version "0.0.1"
-  resolved "https://github.com/webterm-tools/minimal-ipfs#c55c7e5f29dcd7e60c03481ee1a0be0bc2da11a4"
+  resolved "https://github.com/webterm-tools/minimal-ipfs#85a606a79e66095b24540804dc050c7132699460"
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
