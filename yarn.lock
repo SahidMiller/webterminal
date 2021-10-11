@@ -1241,7 +1241,7 @@
 
 "@webterm-tools/bash@https://github.com/webterm-tools/bash":
   version "0.0.1"
-  resolved "https://github.com/webterm-tools/bash#3aadd610ac11eb13cd0340bbf8863f2d39062108"
+  resolved "https://github.com/webterm-tools/bash#82b79b3ac716e9c8fa22562b0bb8abe0d024d175"
 
 "@webterm-tools/ipfs@https://github.com/webterm-tools/ipfs":
   version "0.0.1"
