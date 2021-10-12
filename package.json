@@ -32,6 +32,7 @@
     "preact-compat": "^3.19.0",
     "remote-worker-streams": "0.0.2",
     "tess": "SahidMiller/tess",
+    "web-streams-polyfill": "^3.1.1",
     "xhr": "^2.6.0"
   },
   "devDependencies": {

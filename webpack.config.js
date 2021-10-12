@@ -67,6 +67,7 @@ const mainApp = {
       "create-react-class": "preact/compat/lib/create-react-class",
       // Not necessary unless you consume a module requiring `react-dom-factories`
       "react-dom-factories": "preact/compat/lib/react-dom-factories",
+      "web-streams-polyfill": require.resolve("web-streams-polyfill"),
     },
   },
   plugins: [
@@ -78,6 +79,10 @@ const mainApp = {
       filename: "index.html",
       inject: "body",
       publicPath: "./",
+    }),
+    new webpack.ProvidePlugin({
+      "ReadableStream": ["web-streams-polyfill", "ReadableStream"],
+      "WritableStream": ["web-streams-polyfill", "WritableStream"]
     })
   ],
 };
@@ -91,8 +96,17 @@ const serviceWorker = {
   },
   mode: "development",
   target: "webworker",
+  resolve: {
+    alias: {
+      "web-streams-polyfill": require.resolve("web-streams-polyfill"),
+    }
+  },
   plugins: [
-    new NodePolyfillPlugin()
+    new NodePolyfillPlugin(),
+    new webpack.ProvidePlugin({
+      "ReadableStream": ["web-streams-polyfill", "ReadableStream"],
+      "WritableStream": ["web-streams-polyfill", "WritableStream"]
+    })
   ],
 };
 
@@ -109,11 +123,16 @@ const nodeWorker = {
     alias: {
       tty: require.resolve("./polyfills/tty.js"),
       fs: require.resolve("./src/workers/worker-process/fs-proxy.cjs"),
+      "web-streams-polyfill": require.resolve("web-streams-polyfill"),
     },
   },
   plugins: [
     new NodePolyfillPlugin({
       excludeAliases: ["tty", "fs"]
+    }),
+    new webpack.ProvidePlugin({
+      "ReadableStream": ["web-streams-polyfill", "ReadableStream"],
+      "WritableStream": ["web-streams-polyfill", "WritableStream"]
     })
   ],
 };
