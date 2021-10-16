@@ -1,15 +1,15 @@
 import { FS_REQUEST_SUCCEEDED, FS_REQUEST_FAILED } from "../actions.js"
 import fs from "fs"
 
-async function fsProxyHost(interceptedMethods) {
+async function fsProxyHost({ methods }) {
   let result = fs;
   const doDebug = true
   
   if (doDebug) {
-    console.log("Starting", interceptedMethods)
+    console.log("Starting", methods)
   }
 
-  interceptedMethods.forEach((method, index) => {
+  methods.forEach((method, index) => {
     const { key, args } = method;
     
     if (doDebug) {

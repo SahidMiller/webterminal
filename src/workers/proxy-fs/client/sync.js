@@ -1,13 +1,27 @@
 import { FS_REQUEST_SUCCEEDED, FS_REQUEST_FAILED } from "../actions.js"
 import xhr from "xhr"
 
+function uid() {
+  return Array.from({ length: 128 / 16 }, () =>
+    Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1)
+  ).join('');
+}
+
 export default function syncFsRequest(data) {
   let error, response;
 
+  const id = uid();
+
   xhr({
     method: "post",
-    body: JSON.stringify(data),
-    uri: "/fs",
+    //Prevent caching from firefox
+    body: JSON.stringify({ 
+      methods: data,
+      id: id
+    }),
+    uri: `/fs?id=${id}`,
     headers: {
       "Content-Type": "application/json"
     },

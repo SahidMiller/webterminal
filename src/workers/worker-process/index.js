@@ -17,25 +17,7 @@ bootstrapProcess({
     return bootstrapFs(fsProxyPort);
   },
   afterProcess: async function(process) {
+    //TODO God willing: move to .bashrc
     process.env.YARN_REGISTRY = "https://registry.npmjs.org"
-  },
-  beforeExecution: async function({ Module }) {
-    //TODO God willing: Load a dynamic libp2p router file before starting
-    //TODO God willing: use path variables for finding configuration before checking default locations.
-    //TODO God willing: default locations may just be default PATH variables.
-    //TODO God willing: some kind of .bashrc file which we run in /bin/bash on startup if found, God willing.
-    //console.log("Neither a dynamic libp2p module or configuration file was found! Using default built in PATH");
-
-    //TODO God willing: might ignore bin/bash for this or run this only in specific whitelist, God willing.
-    try {
-      const remoteWorkerStreams = require("remote-worker-streams/worker");
-      Module._builtinModules["remote-worker-streams/worker"] = remoteWorkerStreams;
-      
-      const { bootstrap } = Module._load("/etc/libp2p-hosts.conf.js")
-      await bootstrap;
-
-    } catch (err) {
-      console.log(err);
-    }
   }
 });

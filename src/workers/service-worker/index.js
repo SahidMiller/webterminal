@@ -58,14 +58,12 @@ self.addEventListener("message", async function handler(event) {
 self.addEventListener("fetch", async function (e) {
   const url = new URL(e.request.url)
 
-  //TODO God willing: can also do the reverse and save any fetched files from static/ipfs host to this fs
-  if (url.hostname !== "127.0.0.1" && url.hostname !== self.location.hostname) return;
-
+  //TODO God willing: save any fetched files from static/ipfs host to this fs
   const firstPath = "/" + (url.pathname && url.pathname.split("/")[1])
 
   if (protocols[firstPath]) {
     const { messagePort, host, port } = protocols[firstPath];
-    const pathname = (firstPath === "/gateway" ? url.pathname.slice(firstPath.length) : url.pathname);
+    const pathname = url.pathname.slice(firstPath.length);
     const requestUrl = url.origin + pathname;
 
     //TODO God willing: write our request after sending ports to server, God willing.
@@ -89,17 +87,21 @@ self.addEventListener("fetch", async function (e) {
         chunks.push(data);
       });
       res.on("end", function() {
-
+        
         const response = new Response(Buffer.concat(chunks), { 
           status: res.statusCode, 
           statusText: res.statusMessage,
           headers: new Headers(res.headers) 
         });
-
-        resolve(response);
+        
+        try {
+          res.destroy();
+        }finally {
+          resolve(response);
+        }
       })
     }).end()));
-
+    
   } else if (url.pathname === "/fs") { 
     e.respondWith(createSyncResponse(e));
   } else if (url.pathname.startsWith("/http") && fs.existsSync(url.pathname.slice(5))) {
