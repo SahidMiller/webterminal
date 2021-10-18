@@ -11,11 +11,13 @@ export default function (options = {}) {
       try {
         //const url = new URL("../service-worker.js", import.meta.url);
         const url = "./service-worker.js";
+        let cancelSetCurrentServiceWorkerTimeout;
 
         navigator.serviceWorker.addEventListener(
           "message",
           function handler(event) {
             if (event.data.action === SW_ACTIVATED) {
+              clearTimeout(cancelSetCurrentServiceWorkerTimeout);
               setServiceWorker(navigator.serviceWorker.controller);
             }
           }
@@ -27,9 +29,11 @@ export default function (options = {}) {
 
         console.log("Service Worker Registered");
 
-        if (registration && registration.active) {
-          setServiceWorker(registration.active);
-        }
+        cancelSetCurrentServiceWorkerTimeout = setTimeout(() => {
+          if (registration && registration.active) {
+            setServiceWorker(registration.active);
+          }
+        }, options.timeout || 5000)
 
         setRegistrationSucceeded(true);
       } catch (err) {
