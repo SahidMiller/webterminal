@@ -30,7 +30,7 @@ self.addEventListener("activate", function (e) {
   }))
 });
 
-let protocols = {};
+let serversByPort = {}, serversByHost = {};
 
 self.addEventListener("message", async function handler(event) {
   const { action, payload } = event.data || {}
@@ -47,23 +47,58 @@ self.addEventListener("message", async function handler(event) {
   }
 
   if (action === "CREATE_SERVER") {
-    const { protocolName = "/", messagePort, host, port } = payload || {};
-    
-    //TODO God willing: add an event listener to fetch and create a new connection, God willing;
-    const libp2pProtocol = protocolName && protocolName[0] === "/" ? protocolName : "/" + protocolName;
-    protocols[libp2pProtocol] = { messagePort, host, port }
+    const { messagePort, host, port } = payload || {};
+    serversByPort[port] = { messagePort, host, port }
+    serversByHost[host] = serversByHost[host] || {};
+    serversByHost[host][port] = { messagePort, host, port }
   }
 });
+
+const isLocalhost = self.location.hostname === "localhost";
 
 self.addEventListener("fetch", async function (e) {
   const url = new URL(e.request.url)
 
   //TODO God willing: save any fetched files from static/ipfs host to this fs
-  const firstPath = "/" + (url.pathname && url.pathname.split("/")[1])
+  const isRequestLocal = self.location.hostname === url.hostname;
+  
+  if (isRequestLocal && url.pathname === "/fs") { 
+    return e.respondWith(createSyncResponse(e));
+  } else if (url.pathname.startsWith("/http") && fs.existsSync(url.pathname.slice(5))) {
+    const filePath = url.pathname.slice(5);
 
-  if (protocols[firstPath]) {
-    const { messagePort, host, port } = protocols[firstPath];
-    const pathname = url.pathname.slice(firstPath.length);
+    //TODO God willing: use legit http-server or shim for hosting in sw (use a cmd)
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      const indexPath = path.join(filePath, "index.html")
+      
+      if (fs.existsSync(indexPath)) {
+        return e.respondWith(new Response(fs.readFileSync(indexPath)))
+      } else {
+        var init = { "status" : 404 , "statusText" : "File does not exist." };
+        return e.respondWith(new Response(undefined, init));
+      }
+
+    } else {
+      return e.respondWith(new Response(fs.readFileSync(filePath)));
+    }
+  }
+
+  let matchPort
+  let pathname = url.pathname;
+  
+  //When the request matches the service worker host, try to match the first path with ports
+  if (isRequestLocal) {
+    const firstPath = (url.pathname && url.pathname.split("/")[1])
+    matchPort = serversByPort[firstPath];
+    if (matchPort) pathname = url.pathname.slice(firstPath.length + 1);
+  } else {
+    const serversForHost = serversByHost[url.hostname] || {};
+    matchPort = serversForHost[url.port];
+  }
+
+  if (matchPort) {
+    const { messagePort, host, port } = matchPort;
     const requestUrl = url.origin + pathname;
 
     //TODO God willing: write our request after sending ports to server, God willing.
@@ -100,27 +135,6 @@ self.addEventListener("fetch", async function (e) {
           resolve(response);
         }
       })
-    }).end()));
-    
-  } else if (url.pathname === "/fs") { 
-    e.respondWith(createSyncResponse(e));
-  } else if (url.pathname.startsWith("/http") && fs.existsSync(url.pathname.slice(5))) {
-    const filePath = url.pathname.slice(5);
-
-    //TODO God willing: use legit http-server or shim for hosting in sw (use a cmd)
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      const indexPath = path.join(filePath, "index.html")
-      
-      if (fs.existsSync(indexPath)) {
-        return e.respondWith(new Response(fs.readFileSync(indexPath)))
-      } else {
-        var init = { "status" : 404 , "statusText" : "File does not exist" };
-        return e.respondWith(new Response(undefined, init));
-      }
-
-    } else {
-      return e.respondWith(new Response(fs.readFileSync(filePath)));
-    }
+    }).end())); 
   }
 });

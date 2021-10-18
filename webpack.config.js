@@ -121,14 +121,15 @@ const nodeWorker = {
   target: "webworker",
   resolve: {
     alias: {
-      tty: require.resolve("./polyfills/tty.js"),
+      tty_wrap: require.resolve("./polyfills/tty_wrap.js"),
       fs: require.resolve("./src/workers/worker-process/fs-proxy.cjs"),
       "web-streams-polyfill": require.resolve("web-streams-polyfill"),
+      net: require.resolve("./polyfills/net-worker/index.js"),
     },
   },
   plugins: [
     new NodePolyfillPlugin({
-      excludeAliases: ["tty", "fs"]
+      excludeAliases: ["fs"]
     }),
     new webpack.ProvidePlugin({
       "ReadableStream": ["web-streams-polyfill", "ReadableStream"],

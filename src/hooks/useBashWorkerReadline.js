@@ -35,6 +35,9 @@ export default function() {
   const [termStdio, setStdio] = useState(null);
   const [bashProcess, setBashProcess] = useState(false);
 
+  const [isNetworkReady, setIsNetworkReady] = useState(false);
+  const [networkProcess, setNetworkProcess] = useState(false);
+
   const [didDisplayLoading, setDidDisplayLoading] = useState(false);
 
   useEffect(() => {
@@ -63,44 +66,71 @@ export default function() {
   useEffect(() => {
     if (!termStdio || !serviceWorker || !!bashProcess || !isServiceWorkerReady) return;
 
-    // const { port1: fsProxyPort, port2: transferFsProxyPort } = new MessageChannel();
-    // serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: fsProxyPort }, [fsProxyPort]);
+    let libp2pProcess;
+
+    if (!networkProcess) {
+      
+      libp2pProcess = spawn("/etc/libp2p-hosts.conf.js", ["-worker", "./worker.js"], {
+        workerUrl: "./worker.js",
+        onMessage: (e = {}) => {
+          const { action, transferables } = e.data || {};
+
+          if (action === "LIBP2P_READY") {
+            setIsNetworkReady(true)
+          }
+
+          if (typeof transferables !== 'undefined') {
+            serviceWorker.postMessage(e.data, transferables);
+          }
+        }
+      });
+      
+      setNetworkProcess(libp2pProcess)
     
+    } else {
+
+      libp2pProcess = networkProcess
+    }
+
+
     //Perhaps fake process before hand with columns and rows, God willing, if it uses globals.
     const childProcess = spawn("bash", ["-worker", "./worker.js"], {
       workerUrl: "./worker.js",
+      dimensions: { columns: termStdio.columns, rows: termStdio.rows },
       stdinIsTTY: true,
       stdoutIsTTY: true,
-      dimensions: { columns: termStdio.columns, rows: termStdio.rows },
       onMessage: (e = {}) => {
 
-        const { action, payload } = e.data || {};
+        const { action, payload, transferables } = e.data || {};
 
-        if (e.data && e.data.action === "CREATE_TTY_WRITE_STREAM") {
+        if (action === "CREATE_TTY_WRITE_STREAM") {
     
-          const { readablePort } = e.data.payload;
+          const { readablePort } = payload;
           const readable = createReaderToClient(readablePort);
           readable.pipe(termStdio);
     
-        } else if (e.data && e.data.action === "CREATE_TTY_READ_STREAM") {
+        } else if (action === "CREATE_TTY_READ_STREAM") {
     
-          const { writablePort } = e.data.payload;
+          const { writablePort } = payload;
           const writable = createWriterToClient(writablePort);
           termStdio.pipe(writable);
 
-        } else if (action === "CREATE_FS_PROXY") {
-          serviceWorker.postMessage({ action: "CREATE_FS_PROXY", payload: payload }, [payload]);
-        } else if (action === "CREATE_SERVER") {
-          serviceWorker.postMessage(e.data, e.data.transferables);
+        } else if (action === "CREATE_LIBP2P_CONNECTION") {
+
+          //Respond to any child_processes using our 'net' replacement
+          libp2pProcess.worker.postMessage(e.data, transferables);
+
+        } else if (typeof transferables !== 'undefined') {
+          serviceWorker.postMessage(e.data, transferables);
         }
       }
     });
-    
+
     setBashProcess(childProcess);
   }, [termStdio, serviceWorker, bashProcess, isServiceWorkerReady]);
   
   useEffect(() => {
-    if (!bashProcess || !termStdio) return;
+    if (!bashProcess || !termStdio || !isNetworkReady) return;
 
     bashProcess.stdout.on('end', () => {   
       termStdio.removeListener("data", writeDestination)
@@ -119,7 +149,7 @@ export default function() {
     termStdio.on("data", writeDestination);
     bashProcess.stdout.on("data", writeSource);
   
-  }, [bashProcess, termStdio]);
+  }, [bashProcess, termStdio, isNetworkReady]);
 
   return [isReady, setStdio];
 }

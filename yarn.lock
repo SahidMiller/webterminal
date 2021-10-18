@@ -967,10 +967,10 @@
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.15.4.tgz#ecda5712b61ac852c760d8b3c79c96adca5554e5"
   integrity sha512-eYm8vijH/hpzr/6/1CJ/V/Eb1xQFW2nnUKArb3z+yUWv7HTwj6M7SP957oMjfZjAHU6qpoNc2wQvIxBLWYa/Jg==
 
-"@network-stackify/stack@1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@network-stackify/stack/-/stack-1.1.4.tgz#665af6d9dab6b6dd8b034aa0608abfc9e829b768"
-  integrity sha512-YBBVJ7g+lxXPzV8L+vhK97i3dUYUWzEYDYQ7EE1kh+EDvRUkt7D85o4Hhjp4ZAbUqlVJyOEcXhUDrC2iJIm6RA==
+"@network-stackify/stack@1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@network-stackify/stack/-/stack-1.1.5.tgz#d18d3af4a2c176f63166a1f36a75340fd5fbd989"
+  integrity sha512-YczxsiwfKEqhijPuYHfX9XRCYWew0YenbXrkW7N6Wjvs1tcOnPVxjMi6AUktDb5UJormN60CBNSTTa9B1CFc9Q==
   dependencies:
     "@network-stackify/ws" "^7.5.3"
     get-iterator "^1.0.2"
@@ -1243,13 +1243,26 @@
   version "0.0.1"
   resolved "https://github.com/webterm-tools/bash#1ccdae5f9fc98402f9e9a906253875f8b1c0703d"
 
+"@webterm-tools/bash@webterm-tools/bash":
+  version "0.0.1"
+  resolved "https://codeload.github.com/webterm-tools/bash/tar.gz/c2687b68ead4a427ce178424aebfdc97a9e1efac"
+
 "@webterm-tools/ipfs@https://github.com/webterm-tools/ipfs":
   version "0.0.1"
   resolved "https://github.com/webterm-tools/ipfs#521daa359a942640c2b2b04f3705d685ae922c96"
 
+"@webterm-tools/ipfs@webterm-tools/ipfs":
+  version "0.0.1"
+  resolved "https://codeload.github.com/webterm-tools/ipfs/tar.gz/489d75c7b126b16e630061b15791362b15b9919c"
+
 "@webterm-tools/minimal-ipfs@https://github.com/webterm-tools/minimal-ipfs":
   version "0.0.1"
   resolved "https://github.com/webterm-tools/minimal-ipfs#85a606a79e66095b24540804dc050c7132699460"
+
+"@webterm-tools/minimal-ipfs@webterm-tools/minimal-ipfs":
+  version "0.0.1"
+  uid "85a606a79e66095b24540804dc050c7132699460"
+  resolved "https://codeload.github.com/webterm-tools/minimal-ipfs/tar.gz/85a606a79e66095b24540804dc050c7132699460"
 
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
@@ -3835,16 +3848,16 @@ node-releases@^1.1.76:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.76.tgz#df245b062b0cafbd5282ab6792f7dccc2d97f36e"
   integrity sha512-9/IECtNr8dXNmPWmFXepT0/7o5eolGesHUa3mtr0KlgnCvnZxwh2qensKL42JJY2vQKC3nIBXetFAqR+PW1CmA==
 
-node-stackify@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/node-stackify/-/node-stackify-0.0.4.tgz#e601573a7db4687efcc719bb7f5fa94a6d96ba35"
-  integrity sha512-4VzpZYlWf8kiDfNxegXnIgWUbc+69amx/0U2IW2v1M+ow9CAJKR6FU3KrZ4MHVNnZVg9bv2mDnYAP4nSQCVMQg==
+node-stackify@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/node-stackify/-/node-stackify-0.0.5.tgz#4acd8fcba6def482b9f25bf1bfc1760bbbf6b7fb"
+  integrity sha512-xPZFHqGUXEheJghA8nbaNUwVuTQKRCqjoDZGtc7739huiawNmjjRYP/RXFp//CWJCvBt7ppotUkiSCCHGWOt2A==
   dependencies:
     "@babel/preset-env" "^7.15.0"
     "@babel/register" "^7.15.3"
     "@babel/standalone" "^7.15.3"
     "@darkwolf/primordials" "^1.2.1"
-    "@network-stackify/stack" "1.1.4"
+    "@network-stackify/stack" "1.1.5"
     acorn "^8.5.0"
     acorn-walk "^8.2.0"
     browser-process-hrtime "^1.0.0"

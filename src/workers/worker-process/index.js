@@ -16,8 +16,36 @@ bootstrapProcess({
 
     return bootstrapFs(fsProxyPort);
   },
+  beforeProcess: async function({ dimensions }) {
+    const { TTY } = await import("tty_wrap");
+      
+    TTY.setWindowSize(dimensions);
+    TTY.writeMessagePort = self;
+    TTY.readMessagePort = self;
+  },
   afterProcess: async function(process) {
     //TODO God willing: move to .bashrc
     process.env.YARN_REGISTRY = "https://registry.npmjs.org"
+    process.env.TERM_PROGRAM = "xterm"
+  },
+  beforeExecution: async function(entryPath, { Module }) {
+    try {
+
+      if (entryPath.indexOf("libp2p-hosts.conf.js") !== -1) {
+
+        const [net, client, worker] = await Promise.all([
+          import("node-stackify/net"),
+          import("remote-worker-streams/client"),
+          import("remote-worker-streams/worker")
+        ]);
+
+        Module._builtinModules["net"] =  net
+        Module._builtinModules["remote-worker-streams/client"] = client
+        Module._builtinModules["remote-worker-streams/worker"] = worker
+      }
+
+    } catch (err) {
+      console.log(err);
+    }
   }
 });

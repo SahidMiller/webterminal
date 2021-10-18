@@ -28,23 +28,32 @@
 //   },
 // };
 
+debugger;
+
 const { createPeer } = require("minimal-ipfs");
-const { _normalizeArgs, Socket, normalizeServerArgs } = require("net")
-const { Server: HttpServer } = require("http");
-const { Server: HttpsServer } = require("https");
+const net = require("net")
+const { _normalizeArgs, Socket } = net;
+
+const { createDuplexToClient } = require("remote-worker-streams/worker");
+
 
 let ipfs;
 async function lazyPeer() {
-  if (!ipfs) {
-    ipfs = await createPeer();
+  try {
+    if (!ipfs) {
+      ipfs = await createPeer();
 
-    //We don't need to keep the connection in play, we can dial later for other protocols, just want a persistent connection like ipfs.swarm.connect, God willing.
-    await ipfs.libp2p.dial(
-      "/ip4/127.0.0.1/tcp/4003/ws/p2p/12D3KooWGEpMXtVT1rUZuACbjaE3mGz2jkzNdnJgM7eSfb5JVPVz"
-    );
+      //We don't need to keep the connection in play, we can dial later for other protocols, just want a persistent connection like ipfs.swarm.connect, God willing.
+      await ipfs.libp2p.dial(
+        "/ip4/127.0.0.1/tcp/4003/ws/p2p/12D3KooWGEpMXtVT1rUZuACbjaE3mGz2jkzNdnJgM7eSfb5JVPVz"
+      );
+    }
+
+    return ipfs;
+  } catch (err) {
+    debugger;
+    console.log(err);
   }
-
-  return ipfs;
 }
 
 module.exports.bootstrap = lazyPeer();
@@ -112,7 +121,15 @@ Socket.prototype.connect = function (...args) {
     options.proto = tableEntry ? tableEntry.proto || inheritEntry.proto : defaultEntry && defaultEntry.proto;
 
     try {
-      return originalCreateConnection.call(this, options, cb);
+
+      const socket = originalCreateConnection.call(this, options, cb);
+      
+      socket.on("error", (err) => {
+        console.log(err);
+      });
+
+      return socket;
+
     } catch (err) {
       console.log(err);
       throw err;
@@ -126,69 +143,51 @@ Socket.prototype.connect = function (...args) {
   throw new Error("No libp2p entry exists");
 };
 
-const { createDuplexToClient } = require("remote-worker-streams/worker");
+//TODO God willing: respond to CREATE_LIBP2P_CONNECTION, allow clients to handle the http(s) stuff, God willing.
+self.addEventListener("message", function(e) {
+  const { action, payload } = e.data || {};
 
-//TODO God willing: possibly try to hook the server so somehow, God willing, we can connect to it from the outside, God willing.
-//since this is tcp like, God willing, and listening over libp2p
-//God willing, another app can connect to this libp2p instance, God willing.
-//Right now we can invert it probably, God willing, so that another app can connect.
-function listen(type = "http", ...args) {
-  
-  const [options, callback] = normalizeServerArgs(args);
+  if (action === "CREATE_LIBP2P_CONNECTION") {
+    const { readablePort, writablePort, options } = payload;
+    const localSocket = createDuplexToClient(readablePort, writablePort);
+    
+    //TODO God willing: somehow handle any local calls by just calling the service worker via fetch and writing the stream, God willing?
+    // not sure if we can get the full response stream that way, TGIMA. In that case, might want to have service worker just pass the stream directly from the host, God willing.
+    // rather than returning a response like with a regular fetch, God willing.
+    try {
 
-  //TODO God willing: setup proper protocols
-  if (Number(options.port) === 8001) {
-    options.protocol = "/api";
-  }
+      const remoteSocket = net.connect(options.port, options.host);
+      
+      localSocket.on("readable", async () => {
+        const data = await localSocket.read();
+        remoteSocket.write(data);
+      })
+      
+      remoteSocket.on("readable", async () => {
+        const data = await remoteSocket.read();
+        localSocket.write(data);
+      });
 
-  if (Number(options.port) === 8002) {
-    options.protocol = "/gateway";
-  }
+      remoteSocket.on('end', function() { 
+        localSocket.destroy();
+      });
 
-  //TODO God willing: allow service worker to connect by sending a dedicated signal / port, God willing.
-  // as opposed to listening to all
-  const { port1: serverListenPort, port2: serverTransferPort } = new MessageChannel();
+      localSocket.on('end', () => {
+        remoteSocket.destroy();
+      })
 
-  self.postMessage({ 
-    action: "CREATE_SERVER", 
-    payload: {
-      port: options.port,
-      protocolName: options.protocol,
-      protocol: type,
-      //TODO God willing: ignore for now but can do similar things as IPNS with domain names, God willing.
-      // others might collaborate by also hosting same IPNS like structure on their domains
-      host: options.host,
-      messagePort: serverTransferPort
-   }, 
-   transferables: [serverTransferPort]
-  }, [serverTransferPort]);
+      localSocket.on("error", (err) => {
+        console.log("client side error", err);
+      });
 
-  
-  serverListenPort.onmessage = (e) => {
-    //TODO God willing: create stream for the new connection using payload
-    const { action, payload } = e.data || {};
-
-    if (action === "NEW_CONNECTION") {
-      const socket = createDuplexToClient(payload.readablePort, payload.writablePort);
-
-      this._connections++;
-      socket.server = this;
-      socket._server = this;
-
-      this.emit("connection", socket);
+      remoteSocket.on("error", (err) => {
+        console.log("remote side error", err);
+      });
+    
+    } catch (err) {
+      console.log(err)
     }
   }
+})
 
-  options.libp2p = ipfs.libp2p;
-  return [options, callback]
-}
-
-const originalHttpsListen = HttpsServer.prototype.listen;
-HttpsServer.prototype.listen = function(...args) {
-  return originalHttpsListen.apply(this, listen.call("https", ...args));
-}
-
-const originalHttpListen = HttpServer.prototype.listen;
-HttpServer.prototype.listen = function(...args) {
-  return originalHttpListen.apply(this, listen.call(this, "http", ...args))
-}
+self.postMessage({ action: "LIBP2P_READY" });
