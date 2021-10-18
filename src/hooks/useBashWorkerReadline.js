@@ -69,6 +69,8 @@ export default function() {
     //Perhaps fake process before hand with columns and rows, God willing, if it uses globals.
     const childProcess = spawn("bash", ["-worker", "./worker.js"], {
       workerUrl: "./worker.js",
+      stdinIsTTY: true,
+      stdoutIsTTY: true,
       dimensions: { columns: termStdio.columns, rows: termStdio.rows },
       onMessage: (e = {}) => {
 
